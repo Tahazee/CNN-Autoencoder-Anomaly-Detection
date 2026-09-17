@@ -12,6 +12,7 @@ bottle/
 *.onnx
 *.bin
 *.exe
+*.zip
 cloudflared.exe
 autoencoder_mvtec.pth
 

@@ -1,0 +1,19 @@
+data:
+  root: "./data"
+  category: "bottle"
+  image_size: [256, 256]
+  train_batch_size: 8
+  eval_batch_size: 8
+
+model:
+  latent_dim: 128
+  in_channels: 3
+
+training:
+  epochs: 100
+  learning_rate: 0.001
+  device: "cuda"
+
+paths:
+  weights_dir: "./weights"
+  checkpoint_name: "autoencoder_mvtec.pt"
