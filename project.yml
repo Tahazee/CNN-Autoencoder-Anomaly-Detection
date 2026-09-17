@@ -1,0 +1,13 @@
+project:
+  name: "CNN Autoencoder Vision Model"
+  slug: "cnn-kaggle-model"
+  description: "Test model automatically published from GitHub"
+
+publish:
+  kaggle_model: true
+
+kaggle:
+  model_path: "weights/autoencoder_bottle_weights.pt"
+  framework: "Tensorflow2"
+  variation: "default"
+  version_notes: "Automated upload from GitHub"
