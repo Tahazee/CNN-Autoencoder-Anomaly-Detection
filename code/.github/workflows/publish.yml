@@ -1,0 +1,81 @@
+name: Publish Kaggle Model
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  publish-kaggle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install kagglehub pyyaml
+
+      - name: Publish model
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          import yaml
+          import kagglehub
+
+          with open("project.yml", "r") as f:
+              config = yaml.safe_load(f)
+
+          publish = config.get("publish", {})
+
+          if not publish.get("kaggle_model", False):
+              print("Kaggle publishing disabled.")
+              raise SystemExit(0)
+
+          kaggle = config.get("kaggle", {})
+
+          model_path = kaggle["model_path"]
+          framework = kaggle["framework"]
+          variation = kaggle.get("variation", "default")
+          version_notes = kaggle.get(
+              "version_notes",
+              "Automated GitHub release"
+          )
+
+          if not os.path.exists(model_path):
+              raise FileNotFoundError(
+                  f"Model path does not exist: {model_path}"
+              )
+
+          username = os.environ.get("KAGGLE_USERNAME")
+
+          if not username:
+              raise RuntimeError(
+                  "KAGGLE_USERNAME is not configured."
+              )
+
+          slug = config["project"]["slug"]
+
+          handle = f"{username}/{slug}/{framework}/{variation}"
+
+          print(f"Publishing: {handle}")
+          print(f"Model path: {model_path}")
+
+          kagglehub.model_upload(
+              handle,
+              model_path,
+              version_notes=version_notes
+          )
+
+          print("Kaggle model published successfully.")
+          PY
+          

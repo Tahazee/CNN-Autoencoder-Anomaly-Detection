@@ -7,7 +7,7 @@ publish:
   kaggle_model: true
 
 kaggle:
-  model_path: "model"
+  model_path: "weights/autoencoder_bottle_weights.pt"
   framework: "Tensorflow2"
   variation: "default"
   version_notes: "Automated upload from GitHub"
