@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data & Datasets
+bottle/
+
+# Large binary files & executables
+*.pth
+*.pt
+*.onnx
+*.bin
+*.exe
+cloudflared.exe
+autoencoder_mvtec.pth
+
+# Framework & UI cache
+.gradio/
+
+# Presentation files
+presentation/
+
+# OS generated files
+.DS_Store
+Thumbs.db
