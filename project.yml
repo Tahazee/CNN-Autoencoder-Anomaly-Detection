@@ -1,13 +1,18 @@
-project:
-  name: "CNN Autoencoder Vision Model"
-  slug: "cnn-kaggle-model"
-  description: "Test model automatically published from GitHub"
+name: "CNN Autoencoder Vision Model"
+description: "Test model automatically published from GitHub"
 
-publish:
-  kaggle_model: true
+authors:
+  - name: "Taha Zeeshan"
+    email: "tahazeeshan09@gmail.com"
 
-kaggle:
-  model_path: "code/src/model.py"
-  framework: "Tensorflow2"
-  variation: "default"
-  version_notes: "Automated upload from GitHub"
+publishing:
+  kaggle:
+    enabled: true
+  huggingface:
+    enabled: true
+    repo_id: tahaz122/cnn-autoencoder
+    private: false
+    demo_enabled: true
+    space_id: tahaz122/cnn-autoencoder-demo
+    demo_task: classification
+    inference_function: predict
