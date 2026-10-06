@@ -1,60 +1,289 @@
-Industrial Sense AI: Unsupervised Visual Inspection & Anomaly Detection
+# Industrial Sense AI
+
+### Unsupervised Visual Inspection & Anomaly Detection
+
 ![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)
-![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat\&logo=pytorch\&logoColor=white)
 ![Gradio](https://img.shields.io/badge/Gradio-UI-orange)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-An end-to-end unsupervised visual inspection framework built with PyTorch and Gradio. This system utilizes a Convolutional Autoencoder with a compressed bottleneck vector to detect, locate, and measure manufacturing defects on high-resolution industrial components (e.g., MVTec AD dataset).
+
+An end-to-end **unsupervised visual inspection and anomaly detection framework** built with **PyTorch** and **Gradio**.
+
+Industrial Sense AI learns the visual characteristics of defect-free industrial components and identifies deviations from the learned representation. The system is designed for high-resolution industrial inspection scenarios and can be evaluated on datasets such as **MVTec AD**.
+
+The framework provides both **image-level anomaly detection** and **pixel-level defect localization**, allowing users to identify not only whether an object is defective, but also where the potential defect occurs.
+
 ---
-Key Features
-Convolutional Autoencoder Architecture: Features 4 convolutional encoder stages down to a 128-dimensional bottleneck, paired with 4 transpose-convolutional decoder stages.
-Unsupervised Anomaly Detection: Learns standard feature representations exclusively from defect-free training images. Anomalous regions produce elevated reconstruction errors.
-Pixel-Level Heatmap Overlay: Computes L1 reconstruction distance map, applies Gaussian smoothing, and overlays colorized heatmaps (`JET` colormap) on original input images.
-ECDF Error Diagnostics: Generates Empirical Cumulative Distribution Function (ECDF) curves and diagnostic charts comparing normal vs. defective pixel error distributions.
-Interactive Gradio Interface: Standalone web UI allowing users to upload inspection images, select dataset samples, adjust anomaly decision thresholds dynamically, and inspect visual heatmaps.
+
+## Key Features
+
+### 1. Convolutional Autoencoder
+
+A custom convolutional autoencoder is used to learn representations of defect-free samples.
+
+* 4-stage convolutional encoder
+* Compressed **128-dimensional bottleneck representation**
+* 4-stage transposed-convolution decoder
+* Reconstruction-based anomaly detection
+* Trained primarily on defect-free images
+
+The model learns to reconstruct normal samples accurately. Defective regions are expected to produce higher reconstruction errors.
+
 ---
-Project Structure
+
+### 2. Unsupervised Anomaly Detection
+
+The system follows a reconstruction-based unsupervised learning approach.
+
+During training, the model is exposed to **defect-free images** rather than requiring pixel-level defect annotations.
+
+At inference time:
+
+1. An inspection image is passed through the autoencoder.
+2. The model reconstructs the image.
+3. The original and reconstructed images are compared.
+4. Reconstruction error is used as the anomaly signal.
+5. Regions with elevated reconstruction error are highlighted as potential defects.
+
+This enables anomaly detection without requiring manually labelled defect masks during training.
+
+---
+
+### 3. Pixel-Level Anomaly Localization
+
+The framework generates a pixel-level reconstruction error map using an **L1 distance** between the input and reconstructed images.
+
+The error map is then:
+
+* Smoothed using Gaussian filtering
+* Normalized for visualization
+* Converted into a colorized anomaly heatmap
+* Overlaid onto the original inspection image
+
+This provides visual localization of suspicious regions rather than producing only a binary defective/normal prediction.
+
+---
+
+### 4. ECDF Error Diagnostics
+
+The project includes **Empirical Cumulative Distribution Function (ECDF)** analysis for investigating reconstruction-error distributions.
+
+Diagnostic plots can be used to compare:
+
+* Normal samples
+* Defective samples
+* Pixel-level reconstruction errors
+* Different anomaly decision thresholds
+
+These diagnostics help analyze the separation between normal and anomalous reconstruction-error distributions.
+
+---
+
+### 5. Interactive Gradio Interface
+
+A standalone Gradio application provides an interactive visual inspection interface.
+
+Users can:
+
+* Upload inspection images
+* Select available dataset samples
+* Run anomaly detection
+* Adjust anomaly thresholds
+* View reconstruction results
+* Inspect pixel-level anomaly heatmaps
+* Analyze anomaly scores visually
+
+The interface is intended to make the model's predictions easier to inspect and interpret.
+
+---
+
+## System Pipeline
+
 ```text
-├── code/
-│   ├── datascience_project.py        # Core PyTorch Autoencoder & Anomalib training script
-│   ├── datascience_project_collab.ipynb # Google Colab experiment notebook
-│   └── debug.py                       # Diagnostic utilities & testing helpers
-├── app.py                             # Gradio web application for visual inspection UI
-├── requirements.txt                   # Python environment dependencies
-└── .gitignore                         # Configured to exclude heavy binaries & weights
+             Input Inspection Image
+                       │
+                       ▼
+              Image Preprocessing
+                       │
+                       ▼
+             Convolutional Encoder
+                       │
+                       ▼
+              128-D Bottleneck
+                       │
+                       ▼
+             Transposed-Conv Decoder
+                       │
+                       ▼
+              Reconstructed Image
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+       Reconstruction       L1 Error Map
+          Error Score              │
+              │                    ▼
+              │              Gaussian Smoothing
+              │                    │
+              │                    ▼
+              │              Anomaly Heatmap
+              │                    │
+              └──────────┬─────────┘
+                         ▼
+                 Inspection Result
 ```
+
 ---
-Installation & Setup
-Clone the repository:
-```bash
-   git clone https://github.com/<your-username>/anomaly-detection.git
-   cd anomaly-detection
-   ```
-Create a virtual environment & install dependencies:
-```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+
+## Project Structure
+
+```text
+industrial-sense-ai/
+│
+├── code/
+│   ├── datascience_project.py
+│   │   └── Core model training and anomaly detection pipeline
+│   │
+│   ├── datascience_project_collab.ipynb
+│   │   └── Google Colab experimentation and training notebook
+│   │
+│   └── debug.py
+│       └── Diagnostic and testing utilities
+│
+├── app.py
+│   └── Gradio-based visual inspection application
+│
+├── requirements.txt
+│   └── Python dependencies
+│
+├── .gitignore
+│   └── Excludes model weights, datasets and other large/generated files
+│
+└── README.md
+    └── Project documentation
+```
+
 ---
-Model Training
-To train the autoencoder model on your own dataset or MVTec AD dataset:
-Run the core script:
+
+## Installation
+
+### 1. Clone the Repository
+
 ```bash
-  python code/datascience_project.py
-  ```
-Or open `code/datascience_project_collab.ipynb` in Google Colab for GPU-accelerated training.
+git clone https://github.com/<your-username>/industrial-sense-ai.git
+cd industrial-sense-ai
+```
+
+### 2. Create a Virtual Environment
+
+#### Linux / macOS
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+#### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 ---
-Running the Gradio Application
-To launch the interactive visual inspection UI locally:
+
+## Dataset
+
+The framework can be evaluated using industrial anomaly-detection datasets such as **MVTec AD**.
+
+The training pipeline is designed around the unsupervised setting:
+
+```text
+Training:
+Normal / defect-free images
+            │
+            ▼
+       Autoencoder
+            │
+            ▼
+    Learned normal representation
+
+
+Inference:
+Normal OR defective image
+            │
+            ▼
+       Autoencoder
+            │
+            ▼
+    Reconstruction Error
+            │
+            ▼
+   Anomaly Score + Heatmap
+```
+
+The model should be trained using defect-free samples so that deviations from the learned normal appearance generate higher reconstruction errors.
+
+---
+
+## Model Training
+
+To train the model using the provided training script:
+
+```bash
+python code/datascience_project.py
+```
+
+For GPU-accelerated experimentation, the Google Colab notebook can also be used:
+
+```text
+code/datascience_project_collab.ipynb
+```
+
+After training, save the resulting model checkpoint as:
+
+```text
+autoencoder_mvtec.pth
+```
+
+in the project root directory.
+
+---
+
+## Running the Application
+
+Start the Gradio interface:
+
 ```bash
 python app.py
 ```
-Open the generated local URL (e.g., `http://127.0.0.1:7860`) in your web browser.
-> **Note on Model Checkpoint**: Place your trained weights (`autoencoder_mvtec.pth`) in the root project directory before launching `app.py`.
+
+The application will provide a local URL similar to:
+
+```text
+http://127.0.0.1:7860
+```
+
+Open the URL in a browser to access the visual inspection interface.
+
+### Model Checkpoint
+
+Before launching the application, ensure the trained model checkpoint is available:
+
+```text
+industrial-sense-ai/
+├── app.py
+├── autoencoder_mvtec.pth
+└── ...
+```
+
 ---
-Deploying to Hugging Face Spaces
-Create a new Space on Hugging Face Spaces selecting Gradio as the SDK.
-Push `app.py`, `requirements.txt`, and your trained model checkpoint (`autoencoder_mvtec.pth`) to the Space repository.
----
-License
-This project is open-source and available under the MIT License.
+
+## Anomaly Detection
+
+The
